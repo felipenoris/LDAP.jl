@@ -31,3 +31,16 @@ struct URL
 end
 
 Base.:(==)(ua::URL, ub::URL) = ua.scheme == ub.scheme && ua.host == ub.host && ua.port == ub.port && ua.dn == ub.dn && ua.attrs == ub.attrs && ua.scope == ub.scope && ua.filter == ub.filter && ua.exts == ub.exts && ua.crit_exts == ub.crit_exts
+
+abstract type AuthenticationResult end
+
+struct AuthOk <: AuthenticationResult
+    uri::String
+    who::String
+end
+
+struct AuthErr <: AuthenticationResult
+    uri::String
+    who::String
+    err_code::Cint
+end

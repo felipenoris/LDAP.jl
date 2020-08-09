@@ -48,6 +48,5 @@ end
     ldap = LDAP.LDAPConnection("ldap://ds.example.com:389", protocol=LDAP.LDAP_VERSION2)
     @test LDAP.get_protocol_version(ldap) == LDAP.LDAP_VERSION2
 
-    # LDAP.simple_bind(ldap, "user", "pass")
-    # LDAP.unbind(ldap)
+    # result = LDAP.authenticate(uri, "user", "pass")
 end

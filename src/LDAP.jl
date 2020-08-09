@@ -15,9 +15,17 @@ function is_ldap_url(url::AbstractString) :: Bool
     ldap_is_ldap_url(url) != 0
 end
 
+function get_error_message(error_code::Integer)
+    return unsafe_string(ldap_err2string(error_code))
+end
+
+function get_error_message(err::AuthErr)
+    return get_error_message(err.err_code)
+end
+
 function error_check(err::Integer)
     if err != 0
-        error("LDAP Error Code $err: $(unsafe_string(ldap_err2string(err)))")
+        error("LDAP Error Code $err: $(get_error_message(err))")
     end
 end
 
@@ -112,6 +120,24 @@ end
 function unbind(ldap::LDAPConnection)
     err = ldap_unbind_s(ldap.handle)
     error_check(err)
+end
+
+function authenticate(uri::AbstractString, who::AbstractString, password::AbstractString;
+        protocol::LDAPVersion=LDAP_VERSION3) :: AuthenticationResult
+
+    ldap = LDAPConnection(uri, protocol=protocol)
+    err = ldap_simple_bind_s(ldap.handle, who, password)
+    result = new_authentication_result(uri, who, err)
+    unbind(ldap)
+    return result
+end
+
+function new_authentication_result(uri::AbstractString, who::AbstractString, err::Integer)
+    if err == 0
+        return AuthOk(uri, who)
+    else
+        return AuthErr(uri, who, err)
+    end
 end
 
 end # module
